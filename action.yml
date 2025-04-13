@@ -112,9 +112,22 @@ runs:
           OUTPUT_ID=ios
         fi
 
+        if [ "$TARGET" = "Android32" ]; then
+          GEODE_REPO=0x5abe/geode
+        elif [ "$TARGET" = "Android64" ]; then
+          GEODE_REPO=0x5abe/geode
+        elif [ "$TARGET" = "Win64" ]; then
+          GEODE_REPO=geode-sdk/geode
+        elif [ "$TARGET" = "MacOS" ]; then
+          GEODE_REPO=geode-sdk/geode
+        elif [ "$TARGET" = "iOS" ]; then
+          GEODE_REPO=geode-sdk/geode
+        fi
+
         echo "id=$ID" >> $GITHUB_OUTPUT
         echo "target=$TARGET" >> $GITHUB_OUTPUT
         echo "target_id=$OUTPUT_ID" >> $GITHUB_OUTPUT
+        echo "geode_sdk_repo=$GEODE_REPO" >> $GITHUB_OUTPUT
 
     # https://github.com/mozilla/sccache/issues/2090
     - name: Download custom sccache
@@ -222,7 +235,7 @@ runs:
         mkdir -p "$CLI_PROFILE/Contents/geode/mods"
         geode profile add --name GithubActions "$CLI_PROFILE/GeometryDash.exe" win
 
-        geode sdk install --repository 0x5abe/geode "${{ github.workspace }}/geode-sdk-clone"
+        geode sdk install --repository ${{ steps.platform.outputs.geode_sdk_repo}} "${{ github.workspace }}/geode-sdk-clone"
 
         # silly github actions wont refresh the env
         export GEODE_SDK="${{ github.workspace }}/geode-sdk-clone"
@@ -230,19 +243,19 @@ runs:
 
         if [ "${{ inputs.sdk }}" == "nightly" ]; then
           geode sdk update nightly
-          geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }} --repository 0x5abe/geode
+          geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }} --repository ${{ steps.platform.outputs.geode_sdk_repo}}
         elif [ "${{ inputs.sdk }}" == "latest" ]; then
           geode sdk update stable
-          geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }} --repository 0x5abe/geode
+          geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }} --repository ${{ steps.platform.outputs.geode_sdk_repo}}
         elif [ "${{ inputs.sdk }}" == "given" ]; then
           export MOD_JSON_PATH=$(find . -name "mod.json" -not -path "./geode-sdk-clone/*" -print | sort -r | head -n 1)
           export TARGET_GEODE_VERSION=$(jq -r '.geode' $MOD_JSON_PATH)
           echo "Updating to version $TARGET_GEODE_VERSION from $MOD_JSON_PATH"
           geode sdk update "$TARGET_GEODE_VERSION"
-          geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }} --version "$TARGET_GEODE_VERSION" --repository 0x5abe/geode
+          geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }} --version "$TARGET_GEODE_VERSION" --repository ${{ steps.platform.outputs.geode_sdk_repo}}
         else
           geode sdk update ${{ inputs.sdk }}
-          geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }} --repository 0x5abe/geode
+          geode sdk install-binaries --platform ${{ steps.platform.outputs.target_id }} --repository ${{ steps.platform.outputs.geode_sdk_repo}}
         fi
         
         export CPM_CACHE="${{ github.workspace }}/cpm-cache"
