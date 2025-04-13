@@ -117,11 +117,14 @@ runs:
         elif [ "$TARGET" = "Android64" ]; then
           GEODE_REPO=0x5abe/geode
         elif [ "$TARGET" = "Win64" ]; then
-          GEODE_REPO=geode-sdk/geode
+          #GEODE_REPO=geode-sdk/geode
+          GEODE_REPO=0x5abe/geode
         elif [ "$TARGET" = "MacOS" ]; then
-          GEODE_REPO=geode-sdk/geode
+          #GEODE_REPO=geode-sdk/geode
+          GEODE_REPO=0x5abe/geode
         elif [ "$TARGET" = "iOS" ]; then
-          GEODE_REPO=geode-sdk/geode
+          #GEODE_REPO=geode-sdk/geode
+          GEODE_REPO=0x5abe/geode
         fi
 
         echo "id=$ID" >> $GITHUB_OUTPUT
